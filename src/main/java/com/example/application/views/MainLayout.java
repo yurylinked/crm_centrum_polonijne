@@ -1,7 +1,9 @@
 package com.example.application.views;
 
 import com.example.application.security.SecurityService;
+import com.example.application.views.group.GroupOfStudentsView;
 import com.example.application.views.list.ListView;
+import com.example.application.views.payment.PaymentView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
@@ -44,7 +46,8 @@ public class MainLayout extends AppLayout {
 
         addToDrawer(new VerticalLayout(
             listLink,
-            new RouterLink("Dashboard", DashboardView.class)
+            new RouterLink("Groups", GroupOfStudentsView.class),
+                new RouterLink("Payments", PaymentView.class)
         ));
     }
 }

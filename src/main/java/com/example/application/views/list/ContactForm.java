@@ -2,7 +2,7 @@ package com.example.application.views.list;
 
 import com.example.application.data.entity.Payment;
 import com.example.application.data.entity.Contact;
-import com.example.application.data.entity.Group;
+import com.example.application.data.entity.GroupOfStudents;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
@@ -12,11 +12,12 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.shared.Registration;
 
 import java.util.List;
@@ -28,29 +29,47 @@ public class ContactForm extends FormLayout {
     TextField lastName = new TextField("Last name");
     TextField phone = new TextField("Phone");
     TextField coursePrice = new TextField("Course price");
-    ComboBox<Group> group = new ComboBox<>("Group");
-    ComboBox<Payment> payment = new ComboBox<>("Payment");
+   // TextField paymentFromData = new TextField("Payment From Data");
+    ComboBox<GroupOfStudents> group = new ComboBox<>("Group");
+   // ComboBox<Payment> payment = new ComboBox<>("Payment");
     Binder<Contact> binder = new BeanValidationBinder<>(Contact.class);
 
     Button save = new Button("Save");
     Button delete = new Button("Delete");
     Button close = new Button("Cancel");
-    DatePicker datePicker = new DatePicker("Start date");
+    // DatePicker datePicker = new DatePicker("Start date");
 
-    public ContactForm(List<Payment> payments, List<Group> groups) {
+    public ContactForm(List<Payment> payments, List<GroupOfStudents> groupOfStudents) {
         addClassName("contact-form");
-        binder.bindInstanceFields(this);
+       /* binder.forField(paymentFromData)
+                .bind(Contact::getPaymentFromData, null);*/
+        binder.forField(firstName)
+                .bind(Contact::getFirstName, Contact::setFirstName);
+        binder.forField(lastName)
+                .bind(Contact::getLastName, Contact::setLastName);
+        binder.forField(coursePrice)
+                .bind(Contact::getCoursePrice, Contact::setCoursePrice);
+        binder.forField(phone)
+                .bind(Contact::getPhone, Contact::setPhone);
 
-        payment.setItems(payments);
-        payment.setItemLabelGenerator(Payment::getName);
-        group.setItems(groups);
-        group.setItemLabelGenerator(Group::getName);
+        /*String name = this.contact.getPaymentFromData().getName();
+        binder.forMemberField(this.paymentFromData)
+                .bind(name);*/
+
+       /* binder.bind(streetAddressField,
+                person -> person.getAddress().getStreet(),
+                (person, street) -> person.getAddress().setStreet(street));*/
+       // binder.bindInstanceFields(this);
+       /* payment.setItems(payments);
+        payment.setItemLabelGenerator(Payment::getName);*/
+        group.setItems(groupOfStudents);
+        group.setItemLabelGenerator(GroupOfStudents::getName);
         add(firstName,
                 lastName,
                 phone,
                 coursePrice,
-                payment,
-                group,datePicker,
+                //payment,
+                group,
                 createButtonsLayout());
     }
 

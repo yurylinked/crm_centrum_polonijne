@@ -1,16 +1,13 @@
 package com.example.application.data.entity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.example.application.data.AbstractEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 public class Contact extends AbstractEntity {
@@ -24,22 +21,30 @@ public class Contact extends AbstractEntity {
     @NotEmpty
     private String phone = "";
 
-    @NotEmpty
-    private int coursePrice;
+   // @NotEmpty
+    private String coursePrice = "";
 
-    private String payment;
+    private String paymentFromAdmin;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "paymentFromData_id")
-    @NotNull
-   // @JsonIgnoreProperties({"students"})
-    private Payment paymentFromData;
+    public Contact() {
+    }
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "group_id")
-    @NotNull
-   // @JsonIgnoreProperties({"students"})
-    private Group group;
+    public Contact(String firstName, String lastName, String phone, String paymentFromAdmin) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.paymentFromAdmin = paymentFromAdmin;
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "payment_id")
+    @JsonIgnoreProperties({"students"})
+    private Payment payment;
+
+    @ManyToOne
+    @JoinColumn(name = "groupOfStudents_id")
+    @JsonIgnoreProperties({"students"})
+    private GroupOfStudents groupOfStudents;
 
     @Override
     public String toString() {
@@ -50,13 +55,9 @@ public class Contact extends AbstractEntity {
                 ", coursePrice=" + coursePrice +
                 '}';
     }
-    public Payment getPaymentFromData() {
-        return paymentFromData;
-    }
 
-    public void setPaymentFromData(Payment paymentFromData) {
-        this.paymentFromData = paymentFromData;
-    }
+
+
     public String getFirstName() {
         return firstName;
     }
@@ -73,12 +74,12 @@ public class Contact extends AbstractEntity {
         this.lastName = lastName;
     }
 
-    public Group getGroup() {
-        return group;
+    public GroupOfStudents getGroup() {
+        return groupOfStudents;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setGroup(GroupOfStudents groupOfStudents) {
+        this.groupOfStudents = groupOfStudents;
     }
 
     public String getPhone() {
@@ -89,21 +90,35 @@ public class Contact extends AbstractEntity {
         this.phone = phone;
     }
 
-    public int getCoursePrice() {
+    public String getCoursePrice() {
         return coursePrice;
     }
 
-    public void setCoursePrice(int coursePrice) {
+    public void setCoursePrice(String coursePrice) {
         this.coursePrice = coursePrice;
     }
 
-    public String getPayment() {//отсюда надо достать int amount
+    public String getPaymentFromAdmin() {//отсюда надо достать int amount
+        return paymentFromAdmin;
+    }
+
+    public void setPaymentFromAdmin(String payment) {
+        this.paymentFromAdmin = payment;
+    }
+
+    public Payment getPayment() {
         return payment;
     }
 
-    public void setPayment(String payment) {
+    public void setPayment(Payment payment) {
         this.payment = payment;
     }
 
+    public GroupOfStudents getGroupOfStudents() {
+        return groupOfStudents;
+    }
 
+    public void setGroupOfStudents(GroupOfStudents groupOfStudents) {
+        this.groupOfStudents = groupOfStudents;
+    }
 }

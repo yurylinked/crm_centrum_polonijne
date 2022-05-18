@@ -6,6 +6,7 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.vaadin.artur.helpers.LaunchUtil;
 /**
  * The entry point of the Spring Boot application.
  */
+
 @SpringBootApplication
 @NpmPackage(value = "lumo-css-framework", version = "^4.0.10")
 @Theme(value = "flowcrmtutorial", variant = Lumo.DARK)

@@ -1,10 +1,11 @@
-package com.example.application.views.list;
+package com.example.application.views.payment;
 
 import com.example.application.data.entity.Contact;
+import com.example.application.data.entity.Payment;
 import com.example.application.data.service.CrmService;
 import com.example.application.views.MainLayout;
+import com.example.application.views.list.ContactForm;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -13,8 +14,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -23,26 +24,26 @@ import javax.annotation.security.PermitAll;
 
 @Component
 @Scope("prototype")
-@Route(value = "", layout = MainLayout.class)
-@PageTitle("Contacts | Centrum Polonujne CRM")
+@Route(value = "payment", layout = MainLayout.class)
+@PageTitle("Payment | Centrum Polonujne CRM")
 @PermitAll
-public class ListView extends VerticalLayout {
-    Grid<Contact> grid = new Grid<>(Contact.class);
+public class PaymentView extends VerticalLayout {
+    Grid<Payment> grid = new Grid<>(Payment.class);
     TextField filterText = new TextField();
     ContactForm form;
     CrmService service;
 
-    public ListView(CrmService service) {
+    public PaymentView(CrmService service) {
         this.service = service;
-        addClassName("list-view");
+        addClassName("payment-view");
         setSizeFull();
         configureGrid();
 
-        form = new ContactForm(service.findAllPayments(), service.findAllGroups());
-        form.setWidth("25em");
-        form.addListener(ContactForm.SaveEvent.class, this::saveContact);
-        form.addListener(ContactForm.DeleteEvent.class, this::deleteContact);
-        form.addListener(ContactForm.CloseEvent.class, e -> closeEditor());
+        // form = new ContactForm(service.findAllPayments(), service.findAllGroups());
+//        form.setWidth("25em");
+//        form.addListener(ContactForm.SaveEvent.class, this::saveContact);
+//        form.addListener(ContactForm.DeleteEvent.class, this::deleteContact);
+//        form.addListener(ContactForm.CloseEvent.class, e -> closeEditor());
 
         FlexLayout content = new FlexLayout(grid, form);
         content.setFlexGrow(2, grid);
@@ -50,19 +51,19 @@ public class ListView extends VerticalLayout {
         content.setFlexShrink(0, form);
         content.addClassNames("content", "gap-m");
         content.setSizeFull();
-        Icon icon = new Icon(VaadinIcon.PHONE);
-        add(getToolbar(), icon, content);
+        add(getToolbar(), content);
         updateList();
-        closeEditor();
-        grid.asSingleSelect().addValueChangeListener(event ->
-                editContact(event.getValue()));
+        //closeEditor();
+//        grid.asSingleSelect().addValueChangeListener(event ->
+//                editContact(event.getValue()));
     }
 
     private void configureGrid() {
         grid.addClassNames("contact-grid");
         grid.setSizeFull();
-        grid.setColumns("firstName", "lastName", "phone", "payment");
-        grid.addColumn(contact -> contact.getGroup().getName()).setHeader("Group");
+        grid.setColumns("firstName", "lastName", "phone", "amount", "course");
+        grid.addColumn(payment -> payment.getGroupOfStudents().getName()).setHeader("Group");
+
         // grid.addColumn(contact -> contact.getPaymentFromData().getName()).setHeader("Payment");
 
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
@@ -74,15 +75,15 @@ public class ListView extends VerticalLayout {
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
 
-        Button addContactButton = new Button("Add contact");
-        addContactButton.addClickListener(click -> addContact());
+//        Button addContactButton = new Button("Add contact");
+//        addContactButton.addClickListener(click -> addContact());
 
-        HorizontalLayout toolbar = new HorizontalLayout(filterText, addContactButton);
+        HorizontalLayout toolbar = new HorizontalLayout(filterText /*addContactButton*/);
         toolbar.addClassName("toolbar");
         return toolbar;
     }
 
-    private void saveContact(ContactForm.SaveEvent event) {
+    /*private void saveContact(ContactForm.SaveEvent event) {
         service.saveContact(event.getContact());
         updateList();
         closeEditor();
@@ -113,10 +114,10 @@ public class ListView extends VerticalLayout {
         form.setContact(null);
         form.setVisible(false);
         removeClassName("editing");
-    }
+    }*/
 
     private void updateList() {
-        grid.setItems(service.findAllContacts(filterText.getValue()));
+        grid.setItems(service.findAllPayments(filterText.getValue()));
     }
 
 
