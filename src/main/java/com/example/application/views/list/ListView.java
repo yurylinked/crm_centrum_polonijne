@@ -1,6 +1,10 @@
 package com.example.application.views.list;
 
 import com.example.application.data.entity.Contact;
+import com.example.application.data.entity.GroupOfStudents;
+import com.example.application.data.entity.Payment;
+import com.example.application.data.repository.CourseGenerator;
+import com.example.application.data.repository.CourseRepository;
 import com.example.application.data.service.CrmService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
@@ -28,9 +32,13 @@ import javax.annotation.security.PermitAll;
 @PermitAll
 public class ListView extends VerticalLayout {
     Grid<Contact> grid = new Grid<>(Contact.class);
+    Grid<Payment> gridPayment = new Grid<>(Payment.class);
+   // Grid<GroupOfStudents> gridGroup = new Grid<>(GroupOfStudents.class);
     TextField filterText = new TextField();
     ContactForm form;
     CrmService service;
+    CourseGenerator courseGenerator;
+    CourseRepository courseRepository;
 
     public ListView(CrmService service) {
         this.service = service;
@@ -38,7 +46,7 @@ public class ListView extends VerticalLayout {
         setSizeFull();
         configureGrid();
 
-        form = new ContactForm(service.findAllPayments(), service.findAllGroups());
+        form = new ContactForm(service.findAllGroups(), service.findAllCourses(), service.findAllContacts());
         form.setWidth("25em");
         form.addListener(ContactForm.SaveEvent.class, this::saveContact);
         form.addListener(ContactForm.DeleteEvent.class, this::deleteContact);
@@ -50,22 +58,24 @@ public class ListView extends VerticalLayout {
         content.setFlexShrink(0, form);
         content.addClassNames("content", "gap-m");
         content.setSizeFull();
-        Icon icon = new Icon(VaadinIcon.PHONE);
-        add(getToolbar(), icon, content);
+        add(getToolbar(), content);
         updateList();
         closeEditor();
         grid.asSingleSelect().addValueChangeListener(event ->
                 editContact(event.getValue()));
     }
 
-    private void configureGrid() {
+    public void configureGrid() {
         grid.addClassNames("contact-grid");
         grid.setSizeFull();
-        grid.setColumns("firstName", "lastName", "phone", "payment");
-        grid.addColumn(contact -> contact.getGroup().getName()).setHeader("Group");
-        // grid.addColumn(contact -> contact.getPaymentFromData().getName()).setHeader("Payment");
+        grid.setColumns("firstName", "lastName", "phone", "coursePrice");
+        grid.addColumn(contact -> contact.getPayment().getAmount()).setHeader("PAY");
+        grid.addColumn(contact -> contact.getCourse().getName()).setHeader("Course");
+        grid.addColumn(contact -> contact.getGroupOfStudents().getName()).setHeader("Group name");
+
 
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
     }
 
     private HorizontalLayout getToolbar() {
@@ -88,7 +98,7 @@ public class ListView extends VerticalLayout {
         closeEditor();
     }
 
-    private void deleteContact(ContactForm.DeleteEvent event) {
+    public void deleteContact(ContactForm.DeleteEvent event) {
         service.deleteContact(event.getContact());
         updateList();
         closeEditor();
@@ -115,7 +125,7 @@ public class ListView extends VerticalLayout {
         removeClassName("editing");
     }
 
-    private void updateList() {
+    public void updateList() {
         grid.setItems(service.findAllContacts(filterText.getValue()));
     }
 

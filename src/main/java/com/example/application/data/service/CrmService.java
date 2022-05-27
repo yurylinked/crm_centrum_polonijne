@@ -1,29 +1,37 @@
 package com.example.application.data.service;
 
+import com.example.application.data.entity.Course;
 import com.example.application.data.entity.Payment;
 import com.example.application.data.entity.Contact;
 import com.example.application.data.entity.GroupOfStudents;
 
 import com.example.application.data.repository.ContactRepository;
+import com.example.application.data.repository.CourseRepository;
 import com.example.application.data.repository.GroupsRepository;
 import com.example.application.data.repository.PaymentsRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class CrmService {
+    private static Logger logger = LogManager.getLogger();
 
     private final ContactRepository contactRepository;
     private final PaymentsRepository paymentsRepository;
     private final GroupsRepository groupsRepository;
+    private final CourseRepository courseRepository;
+
 
     public CrmService(ContactRepository contactRepository,
                       PaymentsRepository paymentsRepository,
-                      GroupsRepository groupsRepository) {
+                      GroupsRepository groupsRepository, CourseRepository courseRepository) {
         this.contactRepository = contactRepository;
         this.paymentsRepository = paymentsRepository;
         this.groupsRepository = groupsRepository;
+        this.courseRepository = courseRepository;
     }
 
     public List<Contact> findAllContacts(String stringFilter) {
@@ -33,6 +41,7 @@ public class CrmService {
             return contactRepository.search(stringFilter);
         }
     }
+
     public List<GroupOfStudents> findAllGroups(String stringFilter) {
         if (stringFilter == null || stringFilter.isEmpty()) {
             return groupsRepository.findAll();
@@ -40,6 +49,7 @@ public class CrmService {
             return groupsRepository.search(stringFilter);
         }
     }
+
     public List<Payment> findAllPayments(String stringFilter) {
         if (stringFilter == null || stringFilter.isEmpty()) {
             return paymentsRepository.findAll();
@@ -47,7 +57,6 @@ public class CrmService {
             return paymentsRepository.search(stringFilter);
         }
     }
-
 
 
     public void deleteContact(Contact contact) {
@@ -61,6 +70,7 @@ public class CrmService {
         }
         contactRepository.save(contact);
     }
+
     public void deleteGroup(GroupOfStudents groupOfStudents) {
         groupsRepository.delete(groupOfStudents);
     }
@@ -72,11 +82,34 @@ public class CrmService {
         }
         groupsRepository.save(groupOfStudents);
     }
+
     public List<Payment> findAllPayments() {
         return paymentsRepository.findAll();
     }
 
-    public List<GroupOfStudents> findAllGroups(){
+    public List<GroupOfStudents> findAllGroups() {
         return groupsRepository.findAll();
     }
+
+    public List<Course> findAllCourses() {
+        return courseRepository.findAll();
+    }
+
+    public List<Contact> findAllContacts() {
+        return contactRepository.findAll();
+    }
+
+    public Contact updateCustomerContacts(Contact contact, Double amount) {
+        if (amount == null) {
+            contact.getPayment().setAmount(amount);
+            contactRepository.save(contact);
+        } else {
+            Double amount1 = contact.getPayment().getAmount();
+            contact.getPayment().setAmount(amount + amount1);
+            contactRepository.save(contact);
+        }
+
+        return contact;
+    }
+
 }

@@ -4,10 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
@@ -22,7 +19,7 @@ public class Payment extends AbstractEntity {
     public Payment() {
     }
 
-    public Payment (String firstName, String lastName, String phone, String course, String amount) {
+    public Payment(String firstName, String lastName, String phone, String course, Double amount) {
 
         this.firstName = firstName;
         this.lastName = lastName;
@@ -31,42 +28,36 @@ public class Payment extends AbstractEntity {
         this.amount = amount;
     }
 
-    @NotEmpty
+
     private String firstName = "";
 
-    @NotEmpty
+
     private String lastName = "";
 
-    @NotEmpty
+
     private String phone = "";
-
-    @NotEmpty
-    private String course = "";
-
-    @NotEmpty
-    private String amount = "";
-
-    @OneToMany(mappedBy = "payment")
-    @JsonIgnoreProperties(value = "students")
-    private List<Contact> students = new LinkedList<>();
-
-    @ManyToOne
-    @JoinColumn(name = "groupOfStudent_id")
-    @JsonIgnoreProperties(value = "groupOfStudents")
-    private GroupOfStudents groupOfStudents;
 
     @Override
     public String toString() {
         return "Payment{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", phone='" + phone + '\'' +
-                ", course='" + course + '\'' +
-                ", amount='" + amount + '\'' +
-                ", students=" + students +
-                ", groupOfStudents=" + groupOfStudents +
+                "amount=" + amount +
                 '}';
     }
+
+    private String course = "";
+
+
+    private Double amount=0.0;
+
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties(value = "students")
+    private List<Contact> students = new LinkedList<>();
+
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @JoinColumn(name = "groupOfStudent_id")
+    @JsonIgnoreProperties(value = "groupOfStudents")
+    private GroupOfStudents groupOfStudents;
+
 
     public List<Contact> getStudents() {
         return students;
@@ -108,11 +99,11 @@ public class Payment extends AbstractEntity {
         this.course = course;
     }
 
-    public String getAmount() {
+    public Double getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(Double amount) {
         this.amount = amount;
     }
 

@@ -1,7 +1,11 @@
 package com.example.application.views.group;
 
 
+import com.example.application.data.entity.Contact;
+import com.example.application.data.entity.CourseInterface;
 import com.example.application.data.entity.GroupOfStudents;
+import com.example.application.data.repository.CourseGenerator;
+import com.example.application.data.repository.CourseRepository;
 import com.example.application.data.service.CrmService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.button.Button;
@@ -21,22 +25,25 @@ import javax.annotation.security.PermitAll;
 
 @Component
 @Scope("prototype")
-@Route(value="groupOfStudents", layout = MainLayout.class)
+@Route(value = "groupOfStudents", layout = MainLayout.class)
 @PageTitle("Groups | Centrum Polonujne CRM")
 @PermitAll
 public class GroupOfStudentsView extends VerticalLayout {
     Grid<GroupOfStudents> grid = new Grid<>(GroupOfStudents.class);
+    Grid<Contact> gridOfStudents = new Grid<>(Contact.class);
     TextField filterText = new TextField();
     GroupForm form;
     CrmService service;
+    CourseGenerator courseGenerator;
+    CourseRepository courseRepository;
 
     public GroupOfStudentsView(CrmService service) {
         this.service = service;
         addClassName("groupOfStudents-view");
         setSizeFull();
-        configureGrid();
+        configureGrid();//ПРоверить
 
-        form = new GroupForm(service.findAllPayments(), service.findAllGroups());
+        form = new GroupForm(service.findAllGroups(), service.findAllCourses(), courseGenerator,courseRepository);
         form.setWidth("25em");
         form.addListener(GroupForm.SaveEvent.class, this::saveGroup);
         form.addListener(GroupForm.DeleteEvent.class, this::deleteGroup);
@@ -50,7 +57,7 @@ public class GroupOfStudentsView extends VerticalLayout {
         content.setSizeFull();
 
         add(getToolbar(), content);
-        updateList();
+        updateGroups();
         closeEditor();
         grid.asSingleSelect().addValueChangeListener(event ->
                 editGroup(event.getValue()));
@@ -59,20 +66,24 @@ public class GroupOfStudentsView extends VerticalLayout {
     private void configureGrid() {
         grid.addClassNames("groupOfStudents-grid");
         grid.setSizeFull();
-        grid.setColumns("name", "course", "date", "teacher");
-        //grid.addColumn(contact -> contact.getGroup().getName()).setHeader("Group");
-        // grid.addColumn(contact -> contact.getPaymentFromData().getName()).setHeader("Payment");
+        grid.setColumns("name", "date", "teacher");
+        grid.addColumn(groupOfStudents -> groupOfStudents.getCourse().getName()).setHeader("Course");
+
+        //grid.addColumn(contact -> contact.getPaymentFromData().getName()).setHeader("Payment");
 
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
     }
 
     private HorizontalLayout getToolbar() {
-        filterText.setPlaceholder("Filter by name...");
+        filterText.setPlaceholder("Search by name...");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
-        filterText.addValueChangeListener(e -> updateList());
+        filterText.addValueChangeListener(e -> updateGroups());
 
         Button addContactButton = new Button("Add group");
+        addContactButton.addClickListener(click -> addGroup());
+
+        Button showAllStudentsFromGroup = new Button("Show All Students from Group");
         addContactButton.addClickListener(click -> addGroup());
 
         HorizontalLayout toolbar = new HorizontalLayout(filterText, addContactButton);
@@ -82,13 +93,13 @@ public class GroupOfStudentsView extends VerticalLayout {
 
     private void saveGroup(GroupForm.SaveEvent event) {
         service.saveGroup(event.getGroupOfStudents());
-        updateList();
+        updateGroups();
         closeEditor();
     }
 
     private void deleteGroup(GroupForm.DeleteEvent event) {
         service.deleteGroup(event.getGroupOfStudents());
-        updateList();
+        updateGroups();
         closeEditor();
     }
 
@@ -107,13 +118,18 @@ public class GroupOfStudentsView extends VerticalLayout {
         editGroup(new GroupOfStudents());
     }
 
+    void showAllStudents() {
+        gridOfStudents.asSingleSelect().clear();
+        editGroup(new GroupOfStudents());
+    }
+
     private void closeEditor() {
         form.setGroupOfStudents(null);
         form.setVisible(false);
         removeClassName("editing");
     }
 
-    private void updateList() {
+    private void updateGroups() {
         grid.setItems(service.findAllGroups(filterText.getValue()));
     }
 

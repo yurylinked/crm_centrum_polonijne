@@ -1,8 +1,11 @@
 package com.example.application.views.group;
 
 
-import com.example.application.data.entity.Payment;
+import com.example.application.data.entity.Course;
+import com.example.application.data.entity.CourseInterface;
 import com.example.application.data.entity.GroupOfStudents;
+import com.example.application.data.repository.CourseGenerator;
+import com.example.application.data.repository.CourseRepository;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
@@ -11,6 +14,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -18,15 +22,18 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.shared.Registration;
 
+
 import java.util.List;
 
 public class GroupForm extends FormLayout {
-    private GroupOfStudents groupOfStudents;
+
+    private GroupOfStudents groupOfStudents = new GroupOfStudents();
 
     TextField name = new TextField("Name of Group");
     TextField teacher = new TextField("Teacher");
     DatePicker datePicker = new DatePicker("Date of Payment");
-    ComboBox<GroupOfStudents> group = new ComboBox<>("Group");
+
+    ComboBox<Course> course1 = new ComboBox<>("Course");
 
     Binder<GroupOfStudents> binder = new BeanValidationBinder<>(GroupOfStudents.class);
 
@@ -35,26 +42,23 @@ public class GroupForm extends FormLayout {
     Button close = new Button("Cancel");
 
 
-    public GroupForm(List<Payment> payments, List<GroupOfStudents> contacts) {
+    public GroupForm(List<GroupOfStudents> groupOfStudentsList, List<Course> courses, CourseGenerator courseGenerator,
+                     CourseRepository courseRepository) {
         addClassName("group-form");
-        //Date input = groupOfStudents.getDate();
-        //LocalDate date = LocalDate.ofInstant(input.toInstant(), ZoneId.systemDefault());
-       /* binder.forField(paymentFromData)
-                .bind(Contact::getPaymentFromData, null);*/
         binder.forField(name)
                 .bind(GroupOfStudents::getName, GroupOfStudents::setName);
         binder.forField(teacher)
                 .bind(GroupOfStudents::getTeacher, GroupOfStudents::setTeacher);
         binder.forField(datePicker)
                 .bind(GroupOfStudents::getDate, GroupOfStudents::setDate);
-        // binder.bindInstanceFields(this);
-       /* payment.setItems(payments);
-        payment.setItemLabelGenerator(Payment::getName);*/
-        group.setItems((ComboBox.ItemFilter<GroupOfStudents>) groupOfStudents.getCourse());
-        add(name,
+
+        course1.setItemLabelGenerator(Course::getName);
+        course1.setItems(courses);
+
+        add(this.name,
                 teacher,
                 datePicker,
-                group,
+                course1,
                 createButtonsLayout());
     }
 
@@ -66,10 +70,9 @@ public class GroupForm extends FormLayout {
         save.addClickShortcut(Key.ENTER);
         close.addClickShortcut(Key.ESCAPE);
 
-        save.addClickListener(event -> validateAndSave());
+        save.addClickListener(event -> validateAndSave());//не проходит валидацию тут 1 ошибка
         delete.addClickListener(event -> fireEvent(new DeleteEvent(this, groupOfStudents)));
         close.addClickListener(event -> fireEvent(new CloseEvent(this)));
-
 
         binder.addStatusChangeListener(e -> save.setEnabled(binder.isValid()));
 
@@ -81,11 +84,16 @@ public class GroupForm extends FormLayout {
         binder.readBean(groupOfStudents);
     }
 
-    private void validateAndSave() {
+    private void validateAndSave() {//не сохраняется  проблема изза course
+
         try {
-            binder.writeBean(groupOfStudents);
+            binder.forField(course1).bind(GroupOfStudents::getCourse, GroupOfStudents::setCourse);
+            binder.writeBean(groupOfStudents);//
+
             fireEvent(new SaveEvent(this, groupOfStudents));
         } catch (ValidationException e) {
+            Notification.show("Validation error count: "
+                    + e.getValidationErrors().size());
             e.printStackTrace();
         }
     }

@@ -30,7 +30,7 @@ import javax.annotation.security.PermitAll;
 public class PaymentView extends VerticalLayout {
     Grid<Payment> grid = new Grid<>(Payment.class);
     TextField filterText = new TextField();
-    ContactForm form;
+    //PaymentF form;
     CrmService service;
 
     public PaymentView(CrmService service) {
@@ -45,10 +45,10 @@ public class PaymentView extends VerticalLayout {
 //        form.addListener(ContactForm.DeleteEvent.class, this::deleteContact);
 //        form.addListener(ContactForm.CloseEvent.class, e -> closeEditor());
 
-        FlexLayout content = new FlexLayout(grid, form);
+        FlexLayout content = new FlexLayout(grid);//
         content.setFlexGrow(2, grid);
-        content.setFlexGrow(1, form);
-        content.setFlexShrink(0, form);
+        content.setFlexGrow(1);
+        content.setFlexShrink(0);
         content.addClassNames("content", "gap-m");
         content.setSizeFull();
         add(getToolbar(), content);
@@ -59,10 +59,10 @@ public class PaymentView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addClassNames("contact-grid");
+        grid.addClassNames("payment-grid");
         grid.setSizeFull();
         grid.setColumns("firstName", "lastName", "phone", "amount", "course");
-        grid.addColumn(payment -> payment.getGroupOfStudents().getName()).setHeader("Group");
+       // grid.addColumn(payment -> payment.getGroupOfStudents().getCourse()).setHeader("Group");
 
         // grid.addColumn(contact -> contact.getPaymentFromData().getName()).setHeader("Payment");
 

@@ -1,8 +1,11 @@
 package com.example.application.views.list;
 
+import com.example.application.data.entity.Course;
 import com.example.application.data.entity.Payment;
 import com.example.application.data.entity.Contact;
 import com.example.application.data.entity.GroupOfStudents;
+import com.example.application.data.repository.CourseGenerator;
+import com.example.application.data.repository.CourseRepository;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
@@ -11,38 +14,43 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.binder.*;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
+import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.shared.Registration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 
 import java.util.List;
 
 public class ContactForm extends FormLayout {
-    private Contact contact;
+    private Contact contact = new Contact();
+    // private GroupOfStudents groupOfStudents = new GroupOfStudents();
 
     TextField firstName = new TextField("First name");
     TextField lastName = new TextField("Last name");
     TextField phone = new TextField("Phone");
-    TextField coursePrice = new TextField("Course price");
-   // TextField paymentFromData = new TextField("Payment From Data");
-    ComboBox<GroupOfStudents> group = new ComboBox<>("Group");
-   // ComboBox<Payment> payment = new ComboBox<>("Payment");
+
+    NumberField coursePrice = new NumberField("Course price");
+    // TextField groupName = new TextField("Group Name");
+    TextField groupName = new TextField("Group Name");
+
+    ComboBox<Course> course1 = new ComboBox<>("Course");
     Binder<Contact> binder = new BeanValidationBinder<>(Contact.class);
+    Binder<GroupOfStudents> bindergroup = new BeanValidationBinder<>(GroupOfStudents.class);
 
     Button save = new Button("Save");
     Button delete = new Button("Delete");
     Button close = new Button("Cancel");
-    // DatePicker datePicker = new DatePicker("Start date");
 
-    public ContactForm(List<Payment> payments, List<GroupOfStudents> groupOfStudents) {
+    public ContactForm(List<GroupOfStudents> groupOfStudents, List<Course> courses, List<Contact> contacts) {
         addClassName("contact-form");
-       /* binder.forField(paymentFromData)
-                .bind(Contact::getPaymentFromData, null);*/
+        //contact.getPayment().getAmount();
         binder.forField(firstName)
                 .bind(Contact::getFirstName, Contact::setFirstName);
         binder.forField(lastName)
@@ -51,25 +59,28 @@ public class ContactForm extends FormLayout {
                 .bind(Contact::getCoursePrice, Contact::setCoursePrice);
         binder.forField(phone)
                 .bind(Contact::getPhone, Contact::setPhone);
+   /*    *//* binder.forField(groupName).withConverter(((ValueProvider<Contact, String>)
+                a -> a.getGroupOfStudents().getName()))*//*
+                .bind(Contact::getGroupOfStudents, Contact::setGroupOfStudents);*/
 
-        /*String name = this.contact.getPaymentFromData().getName();
-        binder.forMemberField(this.paymentFromData)
-                .bind(name);*/
+        bindergroup.forField(groupName).bind(GroupOfStudents::getName, GroupOfStudents::setName);
 
-       /* binder.bind(streetAddressField,
-                person -> person.getAddress().getStreet(),
-                (person, street) -> person.getAddress().setStreet(street));*/
-       // binder.bindInstanceFields(this);
-       /* payment.setItems(payments);
-        payment.setItemLabelGenerator(Payment::getName);*/
-        group.setItems(groupOfStudents);
-        group.setItemLabelGenerator(GroupOfStudents::getName);
-        add(firstName,
+
+      /*  groupName.setItemLabelGenerator(GroupOfStudents::getName);
+        groupName.setItems(groupOfStudents);*/
+        //  binder.forField(groupName).bind(GroupOfStudents::getNameOfGroup, GroupOfStudents::setNameOfGroup);
+
+        course1.setItemLabelGenerator(Course::getName);
+        course1.setItems(courses);
+        binder.forField(course1).bind(Contact::getCourse, Contact::setCourse);
+        binder.bindInstanceFields(this);
+
+        add(this.firstName,
                 lastName,
                 phone,
                 coursePrice,
-                //payment,
-                group,
+                groupName,
+                course1,
                 createButtonsLayout());
     }
 
@@ -98,9 +109,14 @@ public class ContactForm extends FormLayout {
 
     private void validateAndSave() {
         try {
+            binder.forField(course1).bind(Contact::getCourse, Contact::setCourse);
+            bindergroup.forField(groupName).bind(GroupOfStudents::getName, GroupOfStudents::setName);
+            binder.bindInstanceFields(this);
             binder.writeBean(contact);
             fireEvent(new SaveEvent(this, contact));
         } catch (ValidationException e) {
+            Notification.show("Validation error count: "
+                    + e.getValidationErrors().size());
             e.printStackTrace();
         }
     }

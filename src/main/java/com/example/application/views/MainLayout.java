@@ -7,10 +7,14 @@ import com.example.application.views.payment.PaymentView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
 
@@ -21,11 +25,17 @@ public class MainLayout extends AppLayout {
         this.securityService = securityService;
         createHeader();
         createDrawer();
+
     }
+
+
 
     private void createHeader() {
         H1 logo = new H1("Centrum Polonijne CRM");
         logo.addClassNames("text-l", "m-m");
+        logo.getStyle()
+                .set("font-size", "var(--lumo-font-size-l)")
+                .set("margin", "var(--lumo-space-m) var(--lumo-space-l)");
 
         Button logout = new Button("Log out", e -> securityService.logout());
 
